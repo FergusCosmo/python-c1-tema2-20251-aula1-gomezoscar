@@ -29,7 +29,6 @@ products = [
     {"id": 3, "name": "Tablet", "price": 349.99}
 ]
 
-
 class ProductAPIHandler(BaseHTTPRequestHandler):
     """
     Manejador de peticiones HTTP para la API de productos
@@ -41,13 +40,53 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         Debes implementar la lógica para responder a la petición GET en la ruta /product/<id>
         con los datos del producto en formato JSON si existe, o un error 404 si no existe.
         """
-        # Implementa aquí la lógica para responder a las peticiones GET
-        # 1. Usa una expresión regular para verificar si la ruta coincide con /product/<id>
-        # 2. Si coincide, extrae el ID del producto de la ruta
-        # 3. Busca el producto en la lista
-        # 4. Si el producto existe, devuélvelo en formato JSON con código 200
-        # 5. Si el producto no existe, devuelve un mensaje de error con código 404
-        pass
+        # Usa una expresión regular para verificar si la ruta coincide con /product/<id>
+        match = re.match(r'^/product/(\d+)$', self.path)
+        
+        if match:
+            # Extrae el ID del producto de la ruta
+            product_id = int(match.group(1))
+            
+            # Busca el producto en la lista
+            product = None
+            for p in products:
+                if p["id"] == product_id:
+                    product = p
+                    break
+            
+            if product:
+                # Si el producto existe, devuélvelo en formato JSON con código 200
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                
+                # Convierte el producto a JSON y envíalo
+                response = json.dumps(product, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+            else:
+                # Si el producto no existe, devuelve un mensaje de error con código 404
+                self.send_response(404)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.end_headers()
+                
+                error_message = {
+                    "error": "Producto no encontrado",
+                    "id": product_id
+                }
+                response = json.dumps(error_message, ensure_ascii=False)
+                self.wfile.write(response.encode("utf-8"))
+        else:
+            # Si la ruta no coincide con el patrón esperado, devuelve 404
+            self.send_response(404)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.end_headers()
+            
+            error_message = {
+                "error": "Ruta no encontrada",
+                "path": self.path
+            }
+            response = json.dumps(error_message, ensure_ascii=False)
+            self.wfile.write(response.encode("utf-8"))
 
 def create_server(host="localhost", port=8000):
     """
