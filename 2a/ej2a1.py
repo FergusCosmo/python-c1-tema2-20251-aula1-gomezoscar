@@ -28,12 +28,26 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
         Para otras rutas, devuelve un código de estado 404 (Not Found).
         """
-        # Implementa aquí la lógica para responder a las peticiones GET
-        # 1. Verifica la ruta solicitada (self.path)
-        # 2. Si la ruta es "/", envía una respuesta 200 con el mensaje "¡Hola mundo!"
-        # 3. Si la ruta es cualquier otra, envía una respuesta 404
-        pass
-
+        # Verifica la ruta solicitada
+        if self.path == "/":
+            # Envía el código de estado 200 (OK)
+            self.send_response(200)
+            
+            # Define el tipo de contenido como texto plano
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            
+            # Envía el mensaje de respuesta
+            mensaje = "¡Hola mundo!"
+            self.wfile.write(mensaje.encode("utf-8"))
+        else:
+            # Para cualquier otra ruta, envía un error 404
+            self.send_response(404)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.end_headers()
+            
+            mensaje = "404 - Página no encontrada"
+            self.wfile.write(mensaje.encode("utf-8"))
 
 def create_server(host="localhost", port=8000):
     """
@@ -53,3 +67,4 @@ def run_server(server):
 if __name__ == '__main__':
     server = create_server()
     run_server(server)
+    
