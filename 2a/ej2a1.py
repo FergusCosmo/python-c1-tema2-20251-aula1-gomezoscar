@@ -3,7 +3,7 @@ Enunciado:
 Desarrolla un servidor web básico utilizando la biblioteca http.server de Python.
 El servidor debe responder a una petición GET en la ruta raíz.
 
-1. `GET /`: Devuelve un mensaje de saludo en texto plano con el contenido "¡Hola mundo!".
+1. GET /: Devuelve un mensaje de saludo en texto plano con el contenido "¡Hola mundo!".
 
 Esta es una introducción simple a los servidores HTTP en Python para entender cómo crear
 una aplicación web básica sin usar frameworks y responder a solicitudes HTTP.
@@ -28,26 +28,15 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
         Para otras rutas, devuelve un código de estado 404 (Not Found).
         """
-        # Verifica la ruta solicitada
         if self.path == "/":
-            # Envía el código de estado 200 (OK)
             self.send_response(200)
-            
-            # Define el tipo de contenido como texto plano
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-type", "text/plain")
             self.end_headers()
-            
-            # Envía el mensaje de respuesta
-            mensaje = "¡Hola mundo!"
-            self.wfile.write(mensaje.encode("utf-8"))
+            self.wfile.write("¡Hola mundo!".encode())
         else:
-            # Para cualquier otra ruta, envía un error 404
             self.send_response(404)
-            self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.end_headers()
-            
-            mensaje = "404 - Página no encontrada"
-            self.wfile.write(mensaje.encode("utf-8"))
+
 
 def create_server(host="localhost", port=8000):
     """
@@ -67,4 +56,3 @@ def run_server(server):
 if __name__ == '__main__':
     server = create_server()
     run_server(server)
-    
