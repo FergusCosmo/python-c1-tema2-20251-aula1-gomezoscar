@@ -21,10 +21,15 @@ def create_app():
     """
     app = Flask(__name__)
 
-    # Aquí debes implementar el endpoint solicitado
+    @app.route('/', methods=['GET'])
+    def index():  # type: ignore
+        """
+        Endpoint raíz que devuelve un mensaje de saludo
+        """
+        return "¡Hola mundo!", 200
 
     return app
 
 if __name__ == '__main__':
     app = create_app()
-    app.run(debug=True)
+    app.run(debug=True) 
