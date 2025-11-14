@@ -59,15 +59,56 @@ class ProductAPIHandler(BaseHTTPRequestHandler):
         Debes implementar la lógica para responder a la petición GET en la ruta /product/<id>
         con los datos del producto en formato XML si existe, o un error 404 si no existe.
         """
-        # Implementa aquí la lógica para responder a las peticiones GET
-        # 1. Usa una expresión regular para verificar si la ruta coincide con /product/<id>
-        # 2. Si coincide, extrae el ID del producto de la ruta
-        # 3. Busca el producto en la lista
-        # 4. Si el producto existe:
-        #    a. Convierte el producto a XML usando dict_to_xml y prettify
-        #    b. Devuelve el XML con código 200 y Content-Type application/xml
-        # 5. Si el producto no existe, devuelve un mensaje de error XML con código 404
-        pass
+        # Usa una expresión regular para verificar si la ruta coincide con /product/<id>
+        match = re.match(r'^/product/(\d+)$', self.path)
+        
+        if match:
+            # Extrae el ID del producto de la ruta
+            product_id = int(match.group(1))
+            
+            # Busca el producto en la lista
+            product = None
+            for p in products:
+                if p["id"] == product_id:
+                    product = p
+                    break
+            
+            if product:
+                # Si el producto existe, convierte el producto a XML
+                product_xml = dict_to_xml("product", product)
+                xml_response = prettify(product_xml)
+                
+                # Devuelve el XML con código 200
+                self.send_response(200)
+                self.send_header("Content-Type", "application/xml; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(xml_response)
+            else:
+                # Si el producto no existe, devuelve un mensaje de error XML con código 404
+                error_dict = {
+                    "error": "Producto no encontrado",
+                    "id": product_id
+                }
+                error_xml = dict_to_xml("error_response", error_dict)
+                xml_response = prettify(error_xml)
+                
+                self.send_response(404)
+                self.send_header("Content-Type", "application/xml; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(xml_response)
+        else:
+            # Si la ruta no coincide con el patrón esperado, devuelve 404
+            error_dict = {
+                "error": "Ruta no encontrada",
+                "path": self.path
+            }
+            error_xml = dict_to_xml("error_response", error_dict)
+            xml_response = prettify(error_xml)
+            
+            self.send_response(404)
+            self.send_header("Content-Type", "application/xml; charset=utf-8")
+            self.end_headers()
+            self.wfile.write(xml_response)
 
 def create_server(host="localhost", port=8000):
     """
@@ -86,4 +127,4 @@ def run_server(server):
 
 if __name__ == '__main__':
     server = create_server()
-    run_server(server)
+    run_server(server)  
