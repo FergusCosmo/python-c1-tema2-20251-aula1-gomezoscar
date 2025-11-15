@@ -37,9 +37,10 @@ def create_app():
 
         Acceso mediante request.args (diccionario con los parámetros de la URL)
         """
-        # Implementa este endpoint para obtener los parámetros de consulta
-        # y devolverlos en formato JSON
-        pass
+        # Obtiene los parámetros de consulta como un diccionario
+        query_params = request.args.to_dict()
+        # Devuelve los parámetros en formato JSON
+        return jsonify(query_params)
 
     @app.route('/form', methods=['POST'])
     def form_handler():
@@ -48,9 +49,10 @@ def create_app():
 
         Acceso mediante request.form (para datos de formulario)
         """
-        # Implementa este endpoint para obtener los datos del formulario
-        # y devolverlos en formato JSON
-        pass
+        # Obtiene los datos del formulario como un diccionario
+        form_data = request.form.to_dict()
+        # Devuelve los datos en formato JSON
+        return jsonify(form_data)
 
     @app.route('/json', methods=['POST'])
     def json_handler():
@@ -59,9 +61,13 @@ def create_app():
 
         Acceso mediante request.get_json() (para datos JSON)
         """
-        # Implementa este endpoint para obtener los datos JSON
-        # y devolverlos en formato JSON
-        pass
+        # Obtiene los datos JSON del cuerpo de la petición
+        json_data = request.get_json()
+        # Si no hay datos JSON, devolvemos un error
+        if json_data is None:
+            return jsonify({"error": "No se recibieron datos JSON válidos"}), 400
+        # Devuelve los datos JSON recibidos
+        return jsonify(json_data)
 
     return app
 
