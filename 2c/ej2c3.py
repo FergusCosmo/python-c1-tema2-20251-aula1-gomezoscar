@@ -60,11 +60,41 @@ def create_app():
         - max_price: Precio máximo
         - name: Buscar por nombre (coincidencia parcial)
         """
-        # Implementa aquí el filtrado de productos según los parámetros de consulta
-        # 1. Obtén los parámetros de consulta usando request.args
-        # 2. Filtra la lista de productos según los parámetros proporcionados
-        # 3. Devuelve la lista filtrada en formato JSON con código 200
-        pass
+        # Obtén los parámetros de consulta
+        category = request.args.get('category')
+        min_price = request.args.get('min_price')
+        max_price = request.args.get('max_price')
+        name = request.args.get('name')
+
+        # Convertir precios a float si están presentes
+        if min_price is not None:
+            try:
+                min_price = float(min_price)
+            except ValueError:
+                return jsonify({"error": "El parámetro min_price debe ser un número válido"}), 400
+
+        if max_price is not None:
+            try:
+                max_price = float(max_price)
+            except ValueError:
+                return jsonify({"error": "El parámetro max_price debe ser un número válido"}), 400
+
+        # Filtrar productos según los parámetros
+        filtered_products = products
+
+        if category:
+            filtered_products = [p for p in filtered_products if p["category"] == category]
+
+        if min_price is not None:
+            filtered_products = [p for p in filtered_products if p["price"] >= min_price]
+
+        if max_price is not None:
+            filtered_products = [p for p in filtered_products if p["price"] <= max_price]
+
+        if name:
+            filtered_products = [p for p in filtered_products if name.lower() in p["name"].lower()]
+
+        return jsonify(filtered_products), 200
 
     return app
 
