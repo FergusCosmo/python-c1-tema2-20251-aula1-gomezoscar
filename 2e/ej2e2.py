@@ -50,41 +50,65 @@ def create_app():
         """
         Devuelve un texto plano con el tipo MIME `text/plain`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        response = Response("Este es un texto plano", mimetype='text/plain')
+        return response
 
     @app.route('/html', methods=['GET'])
     def get_html():
         """
         Devuelve un fragmento HTML con el tipo MIME `text/html`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        html_content = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>HTML desde Flask</title>
+        </head>
+        <body>
+            <h1>¡Hola desde Flask!</h1>
+            <p>Este es un fragmento HTML.</p>
+        </body>
+        </html>
+        """
+        response = Response(html_content, mimetype='text/html')
+        return response
 
     @app.route('/json', methods=['GET'])
     def get_json():
         """
         Devuelve un objeto JSON con el tipo MIME `application/json`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        data = {"mensaje": "Hola desde JSON", "status": "ok"}
+        return jsonify(data)
 
     @app.route('/xml', methods=['GET'])
     def get_xml():
         """
         Devuelve un documento XML con el tipo MIME `application/xml`
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        pass
+        xml_content = """<?xml version="1.0" encoding="UTF-8"?>
+        <mensaje>
+            <titulo>XML desde Flask</titulo>
+            <contenido>Este es un documento XML.</contenido>
+        </mensaje>"""
+        response = Response(xml_content, mimetype='application/xml')
+        return response
 
     @app.route('/image', methods=['GET'])
     def get_image():
         """
         Devuelve una imagen con el tipo MIME `image/png`
+        Para este ejemplo, crearemos una imagen PNG simple en memoria usando bytes
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        # Sugerencia: Puedes usar send_file para enviar una imagen
-        pass
+        # Crear una imagen PNG vacía simple en bytes (esto es solo un ejemplo de bytes PNG)
+        # Este es un archivo PNG vacío de 1x1 px (formato PNG)
+        png_bytes = (
+            b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89'
+            b'\x00\x00\x00\nIDATx\x9cc\xf8\x0f\x00\x00\x01\x00\x01}\x0d\xcd\xcc\x80\x00\x00\x00\x00IEND\xaeB`\x82'
+        )
+        buffer = io.BytesIO(png_bytes)
+        response = Response(buffer.getvalue(), mimetype='image/png')
+        return response
 
     @app.route('/binary', methods=['GET'])
     def get_binary():
@@ -92,9 +116,10 @@ def create_app():
         Devuelve datos binarios genéricos con el tipo MIME `application/octet-stream`
         Para este ejemplo, puedes crear unos bytes aleatorios o un archivo binario simple
         """
-        # Implementa este endpoint para devolver el contenido solicitado
-        # Sugerencia: Puedes usar os.urandom() para generar datos aleatorios
-        pass
+        # Generar algunos bytes aleatorios
+        binary_data = os.urandom(100)
+        response = Response(binary_data, mimetype='application/octet-stream')
+        return response
 
     return app
 
