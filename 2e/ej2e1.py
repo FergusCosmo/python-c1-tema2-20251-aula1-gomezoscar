@@ -46,12 +46,10 @@ def create_app():
         Devuelve los encabezados (headers) de la solicitud en formato JSON.
         Convierte el objeto headers de la solicitud en un diccionario.
         """
-        # Implementa este endpoint:
-        # 1. Accede a los encabezados de la solicitud usando request.headers
-        # 2. Convierte los encabezados a un formato adecuado para JSON
-        # 3. Devuelve los encabezados como respuesta JSON
-
-
+        # Accede a los encabezados de la solicitud usando request.headers
+        headers_dict = dict(request.headers)
+        # Devuelve los encabezados como respuesta JSON
+        return jsonify(headers_dict)
 
     @app.route('/browser', methods=['GET'])
     def get_browser_info():
@@ -59,14 +57,41 @@ def create_app():
         Analiza el encabezado User-Agent y devuelve información sobre el navegador,
         sistema operativo y si es un dispositivo móvil.
         """
-        # Implementa este endpoint:
-        # 1. Obtén el encabezado User-Agent de request.headers
-        # 2. Analiza la cadena para detectar:
-        #    - El nombre del navegador (Chrome, Firefox, Safari, etc.)
-        #    - El sistema operativo (Windows, macOS, Android, iOS, etc.)
-        #    - Si es un dispositivo móvil (detecta cadenas como "Mobile", "Android", "iPhone")
-        # 3. Devuelve la información como respuesta JSON
-        pass
+        user_agent = request.headers.get('User-Agent', '')
+
+        # Detectar navegador
+        if 'Chrome' in user_agent and 'Edg' not in user_agent:
+            browser = 'Chrome'
+        elif 'Firefox' in user_agent:
+            browser = 'Firefox'
+        elif 'Safari' in user_agent and 'Chrome' not in user_agent:
+            browser = 'Safari'
+        elif 'Edg' in user_agent:
+            browser = 'Edge'
+        else:
+            browser = 'Desconocido'
+
+        # Detectar sistema operativo
+        if 'Windows' in user_agent:
+            os = 'Windows'
+        elif 'Mac OS' in user_agent:
+            os = 'macOS'
+        elif 'Android' in user_agent:
+            os = 'Android'
+        elif 'iPhone' in user_agent or 'iPad' in user_agent:
+            os = 'iOS'
+        else:
+            os = 'Desconocido'
+
+        # Detectar si es móvil
+        is_mobile = bool(re.search(r'Mobile|Android|iPhone|iPad', user_agent))
+
+        # Devuelve la información como respuesta JSON
+        return jsonify({
+            "navegador": browser,
+            "sistema_operativo": os,
+            "es_movil": is_mobile
+        })
 
     @app.route('/echo', methods=['POST'])
     def echo():
@@ -74,14 +99,18 @@ def create_app():
         Devuelve exactamente los mismos datos que recibe.
         Debe detectar el tipo de contenido y procesarlo adecuadamente.
         """
-        # Implementa este endpoint:
-        # 1. Detecta el tipo de contenido de la solicitud con request.content_type
-        # 2. Según el tipo de contenido, extrae los datos:
-        #    - Para JSON: usa request.get_json()
-        #    - Para form data: usa request.form
-        #    - Para texto plano: usa request.data
-        # 3. Devuelve los mismos datos con el mismo tipo de contenido
-        pass
+        content_type = request.content_type
+
+        if content_type and 'application/json' in content_type:
+            data = request.get_json()
+            return jsonify(data)
+        elif content_type and 'application/x-www-form-urlencoded' in content_type:
+            data = request.form.to_dict()
+            return jsonify(data)
+        else:
+            # Asumimos texto plano u otro tipo
+            data = request.data.decode('utf-8')
+            return data, 200, {'Content-Type': content_type or 'text/plain'}
 
     @app.route('/validate-id', methods=['POST'])
     def validate_id():
@@ -91,11 +120,27 @@ def create_app():
         - Los primeros 8 caracteres deben ser dígitos
         - El último carácter debe ser una letra
         """
-        # Implementa este endpoint:
-        # 1. Obtén el campo "id_number" del JSON enviado
-        # 2. Valida que cumpla con las reglas especificadas
-        # 3. Devuelve un JSON con el resultado de la validación
-        pass
+        data = request.get_json()
+
+        if not data or 'id_number' not in data:
+            return jsonify({"error": "Campo 'id_number' es obligatorio"}), 400
+
+        id_number = data['id_number']
+
+        # Validar reglas
+        if len(id_number) != 9:
+            is_valid = False
+        elif not id_number[:8].isdigit():
+            is_valid = False
+        elif not id_number[8].isalpha():
+            is_valid = False
+        else:
+            is_valid = True
+
+        return jsonify({
+            "id_number": id_number,
+            "es_valido": is_valid
+        })
 
     return app
 
