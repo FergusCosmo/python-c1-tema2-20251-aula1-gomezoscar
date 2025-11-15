@@ -45,25 +45,41 @@ def create_app():
         """
         Devuelve la lista completa de tareas
         """
-        # Implementa este endpoint
-        pass
+        return jsonify(tasks), 200
 
     @app.route('/tasks', methods=['POST'])
     def add_task():
         """
-        Agrega una nueva tarea
+        Aguela una nueva tarea
         El cuerpo de la solicitud debe incluir un JSON con el campo "name"
         """
-        # Implementa este endpoint
-        pass
+        global next_id
+        data = request.get_json()
+
+        if not data or 'name' not in data:
+            return jsonify({"error": "El campo 'name' es obligatorio"}), 400
+
+        task = {
+            "id": next_id,
+            "name": data["name"]
+        }
+        tasks.append(task)
+        next_id += 1
+        return jsonify(task), 201
 
     @app.route('/tasks/<int:task_id>', methods=['DELETE'])
     def delete_task(task_id):
         """
         Elimina una tarea específica por su ID
         """
-        # Implementa este endpoint
-        pass
+        global tasks
+        task = next((t for t in tasks if t["id"] == task_id), None)
+
+        if not task:
+            return jsonify({"error": "Tarea no encontrada", "id": task_id}), 404
+
+        tasks = [t for t in tasks if t["id"] != task_id]
+        return jsonify({"message": "Tarea eliminada", "id": task_id}), 200
 
     @app.route('/tasks/<int:task_id>', methods=['PUT'])
     def update_task(task_id):
@@ -72,8 +88,18 @@ def create_app():
         El cuerpo de la solicitud debe incluir un JSON con el campo "name"
         Código de estado: 200 - OK si se actualizó, 404 - Not Found si no existe
         """
-        # Implementa este endpoint
-        pass
+        data = request.get_json()
+
+        if not data or 'name' not in data:
+            return jsonify({"error": "El campo 'name' es obligatorio"}), 400
+
+        task = next((t for t in tasks if t["id"] == task_id), None)
+
+        if not task:
+            return jsonify({"error": "Tarea no encontrada", "id": task_id}), 404
+
+        task["name"] = data["name"]
+        return jsonify(task), 200
 
     return app
 
