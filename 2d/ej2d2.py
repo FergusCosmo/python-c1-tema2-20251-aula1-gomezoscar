@@ -21,7 +21,7 @@ Esta actividad te enseñará a utilizar la función abort() de Flask para maneja
 situaciones de error comunes en aplicaciones web.
 """
 
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort
 
 def create_app():
     """
@@ -37,8 +37,13 @@ def create_app():
         - Si el ID es <= 0: abort con código 400 (Bad Request)
         - Si el ID es > 100: abort con código 404 (Not Found)
         """
-        # Implementa este endpoint utilizando abort() según las condiciones
-        pass
+        if resource_id <= 0:
+            abort(400)  # Bad Request
+        if resource_id > 100:
+            abort(404)  # Not Found
+
+        # Si no se cumple ninguna condición de error, devuelve el recurso
+        return f"Recurso con ID {resource_id}"
 
     @app.route('/admin', methods=['GET'])
     def admin():
@@ -48,8 +53,16 @@ def create_app():
         - Si no se proporciona el parámetro 'key': abort con código 401 (Unauthorized)
         - Si la clave no es 'secret123': abort con código 403 (Forbidden)
         """
-        # Implementa este endpoint utilizando abort() según las condiciones
-        pass
+        key = request.args.get('key')
+
+        if not key:
+            abort(401)  # Unauthorized
+
+        if key != 'secret123':
+            abort(403)  # Forbidden
+
+        # Si no se cumple ninguna condición de error, devuelve acceso permitido
+        return "Acceso concedido al panel de administración"
 
     return app
 
